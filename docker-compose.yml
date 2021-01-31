@@ -1,0 +1,39 @@
+version: "3.1"
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: drubal-mysql
+    working_dir: /application
+    volumes:
+      - .:/application
+    environment:
+      - MYSQL_ROOT_PASSWORD=null
+      - MYSQL_DATABASE=drubal
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=null
+    ports:
+      - "8002:3306"
+
+  nginx:
+    image: nginx:alpine
+    container_name: drubal-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+
+
+  php-fpm:
+    build: phpdocker/php-fpm
+    container_name: drubal-php-fpm
+    working_dir: /application
+    volumes:
+      - .:/application
+      - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/5.6/fpm/conf.d/99-overrides.ini
+
+volumes:
+  esdata:
+    driver: local
